@@ -1,3 +1,4 @@
+
 import express from "express";
 import colors from "colors";
 import dotenv from "dotenv";
@@ -7,38 +8,44 @@ import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cors from "cors";
+import { fileURLToPath } from 'node:url'; // Correct import statement
+import path from 'node:path';
 
-//configure env
+// Configure env
 dotenv.config();
 
-//databse config
+// Database config
 connectDB();
 
-//rest object
+// ES module fix
+const __filename = fileURLToPath(import.meta.url); // Corrected variable name
+const __dirname = path.dirname(__filename);
+
+// Rest object
 const app = express();
 
-//middelwares
+// Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-//routes
+// Routes
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
+app.use(express.static(path.join(__dirname, './client/build')));
 
-//rest api
-app.get("/", (req, res) => {
-  res.send("<h1>Welcome to ecommerce app</h1>");
+// Rest API
+app.use('*', function(req, res) {
+  res.sendFile(path.join(__dirname, './client/build/index.js'));
 });
 
-//PORT
+// PORT
 const PORT = process.env.PORT || 8080;
 
-//run listen
+// Run listen
 app.listen(PORT, () => {
   console.log(
-    `Server Running on ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan
-      .white
+    `Server Running on ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan.white
   );
 });
